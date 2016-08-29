@@ -257,91 +257,94 @@ bool MNEProjectToSurface::nearest_triangle_point(const Vector3f &r, const int tr
     }
 
     /*
-     * Tough: must investigate the sides
-     * We might do something intelligent here. However, for now it is ok
-     * to do it in the hard way
+     * investigate the sides
      */
-    float p0, q0, t0, dist0, best, bestp, bestq;
+    float p0, q0, t0;
 
-    /*
-     * Side 1 -> 2
-     */
-    p0 = p + (q * this->c(tri)) / this->a(tri);
-    // Place the point in the corner if it is not on the side
-    if (p0 < 0.0)
-    {
-        p0 = 0.0;
-    }
-    else if (p0 > 1.0)
-    {
-        p0 = 1.0;
-    }
-    q0 = 0;
-    // Distance
-    dist0 = sqrt((p-p0)*(p-p0)*this->a(tri) +
-                 (q-q0)*(q-q0)*this->b(tri) +
-                 2*(p-p0)*(q-q0)*this->c(tri) +
-                 dist*dist);
 
-    best = dist0;
-    bestp = p0;
-    bestq = q0;
-    /*
-    * Side 2 -> 3
-    */
-    t0 = ((a(tri)-c(tri))*(-p) + (b(tri)-c(tri))*q)/(a(tri)+b(tri)-2*c(tri));
-    // Place the point in the corner if it is not on the side
-    if (t0 < 0.0)
+    if (q >= 0.0)
     {
-        t0 = 0.0;
+        /*
+        * Side 1 -> 2
+        */
+        p0 = p + (q * this->c(tri)) / this->a(tri);
+        // Place the point in the corner if it is not on the side
+        if (p0 < 0.0)
+        {
+            p0 = 0.0;
+        }
+        else if (p0 > 1.0)
+        {
+            p0 = 1.0;
+        }
+        q0 = 0;
+        // Distance
+        dist = sqrt((p-p0)*(p-p0)*this->a(tri) +
+                     (q-q0)*(q-q0)*this->b(tri) +
+                     2*(p-p0)*(q-q0)*this->c(tri) +
+                     dist*dist);
+        p = p0;
+        q = q0;
+        return true;
     }
-    else if (t0 > 1.0)
-    {
-        t0 = 1.0;
-    }
-    p0 = 1.0 - t0;
-    q0 = t0;
-    // Distance
-    dist0 = sqrt((p-p0)*(p-p0)*this->a(tri) +
-                 (q-q0)*(q-q0)*this->b(tri) +
-                 2*(p-p0)*(q-q0)*this->c(tri) +
-                 dist*dist);
-    if (dist0 < best)
-    {
-        best = dist0;
-        bestp = p0;
-        bestq = q0;
-    }
-    /*
-    * Side 1 -> 3
-    */
-    p0 = 0.0;
-    q0 = q + (p * c(tri))/b(tri);
-    // Place the point in the corner if it is not on the side
-    if (q0 < 0.0)
-    {
-        q0 = 0.0;
 
-    }
-    else if (q0 > 1.0)
+    else
     {
-        q0 = 1.0;
+        if (p >= 0.0)
+        {
+            /*
+            * Side 1 -> 3
+            */
+            p0 = 0.0;
+            q0 = q + (p * c(tri))/b(tri);
+            // Place the point in the corner if it is not on the side
+            if (q0 < 0.0)
+            {
+                q0 = 0.0;
+
+            }
+            else if (q0 > 1.0)
+            {
+                q0 = 1.0;
+            }
+            // Distance
+            dist = sqrt((p-p0)*(p-p0)*this->a(tri) +
+                         (q-q0)*(q-q0)*this->b(tri) +
+                         2*(p-p0)*(q-q0)*this->c(tri) +
+                         dist*dist);
+            p = p0;
+            q = q0;
+            return true;
+        }
+        else
+        {
+            /*
+            * Side 2 -> 3
+            */
+            t0 = ((a(tri)-c(tri))*(-p) + (b(tri)-c(tri))*q)/(a(tri)+b(tri)-2*c(tri));
+            // Place the point in the corner if it is not on the side
+            if (t0 < 0.0)
+            {
+                t0 = 0.0;
+            }
+            else if (t0 > 1.0)
+            {
+                t0 = 1.0;
+            }
+            p0 = 1.0 - t0;
+            q0 = t0;
+            // Distance
+            dist = sqrt((p-p0)*(p-p0)*this->a(tri) +
+                         (q-q0)*(q-q0)*this->b(tri) +
+                         2*(p-p0)*(q-q0)*this->c(tri) +
+                         dist*dist);
+            p = p0;
+            q = q0;
+
+            return true;
+        }
     }
-    // Distance
-    dist0 = sqrt((p-p0)*(p-p0)*this->a(tri) +
-                 (q-q0)*(q-q0)*this->b(tri) +
-                 2*(p-p0)*(q-q0)*this->c(tri) +
-                 dist*dist);
-    if (dist0 < best)
-    {
-        best = dist0;
-        bestp = p0;
-        bestq = q0;
-    }
-    dist = best;
-    p = bestp;
-    q = bestq;
-    return true;
+    return false;
 }
 
 
